@@ -1,10 +1,10 @@
-import React, { useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Container, Row, Col, Card, Form, Button, Table } from 'react-bootstrap';
 
 const InvoiceTemplate = () => {
   // Reference for print functionality
-  const printRef = useRef();
+  const printRef = useRef(null);
 
   const [companyName, setCompanyName] = useState('Your Company Name');
   const [companyAddress, setCompanyAddress] = useState('Your Business Address');
@@ -30,14 +30,14 @@ const InvoiceTemplate = () => {
   
   // Generate initial items based on columns
   const generateEmptyItem = () => {
-    const item = {};
-    columns.forEach(col => {
+    const item:any = {};
+    columns.forEach((col:any) => {
       item[col.toLowerCase()] = col === 'QUANTITY' ? 1 : '';
     });
     return item;
   };
   
-  const [items, setItems] = useState(Array(2).fill().map(() => generateEmptyItem()));
+  const [items, setItems] = useState(Array(2)?.fill(null).map(() => generateEmptyItem()));
   
   const [notes, setNotes] = useState('');
   const [total, setTotal] = useState(0);
@@ -47,7 +47,7 @@ const InvoiceTemplate = () => {
   const [stampText, setStampText] = useState('Company Stamp/Seal');
   
   // Update columns when number changes
-  const updateColumnCount = (newColumnCount) => {
+  const updateColumnCount = (newColumnCount :any) => {
     const count = parseInt(newColumnCount);
     if (count <= 0) return;
     
@@ -72,8 +72,8 @@ const InvoiceTemplate = () => {
     
     // Update items to match new column structure
     const updatedItems = items.map(item => {
-      const newItem = {};
-      newColumns.forEach(col => {
+      const newItem:any = {};
+      newColumns.forEach((col:any) => {
         newItem[col.toLowerCase()] = item[col.toLowerCase()] || '';
       });
       return newItem;
@@ -83,7 +83,7 @@ const InvoiceTemplate = () => {
   };
   
   // Update column title
-  const updateColumnTitle = (index, newTitle) => {
+  const updateColumnTitle = (index:any, newTitle:any) => {
     const oldTitle = columns[index].toLowerCase();
     const newColumns = [...columns];
     newColumns[index] = newTitle.toUpperCase();
@@ -101,7 +101,7 @@ const InvoiceTemplate = () => {
   };
   
   // Update rows when count changes
-  const updateRows = (newRowCount) => {
+  const updateRows = (newRowCount:any) => {
     const rowCount = parseInt(newRowCount);
     if (rowCount <= 0) return;
     
@@ -120,7 +120,7 @@ const InvoiceTemplate = () => {
   };
   
   // Update item field value
-  const updateItemField = (index, column, value) => {
+  const updateItemField = (index:any, column:any, value:any) => {
     const newItems = [...items];
     newItems[index][column.toLowerCase()] = value;
     
@@ -133,11 +133,11 @@ const InvoiceTemplate = () => {
   };
   
   // Calculate total based on quantity and amount
-  const calculateTotal = (itemsList) => {
+  const calculateTotal = (itemsList:any) => {
     let sum = 0;
     
     if (columns.includes('QUANTITY') && columns.includes('AMOUNT')) {
-      sum = itemsList.reduce((acc, item) => {
+      sum = itemsList.reduce((acc:any, item:any) => {
         const quantity = parseFloat(item['quantity']) || 0;
         const amount = parseFloat(item['amount']) || 0;
         return acc + (quantity * amount);
@@ -160,7 +160,7 @@ const InvoiceTemplate = () => {
       return acc + (quantity * amount);
     }, 0);
     
-    printWindow.document.write(`
+    printWindow && printWindow.document.write(`
       <!DOCTYPE html>
       <html>
       <head>
