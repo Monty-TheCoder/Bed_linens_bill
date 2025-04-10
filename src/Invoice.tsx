@@ -40,7 +40,7 @@ const InvoiceTemplate = () => {
   const [items, setItems] = useState(Array(2)?.fill(null).map(() => generateEmptyItem()));
   
   const [notes, setNotes] = useState('');
-  const [total, setTotal] = useState(0);
+  const [total, setTotal] = useState('0.00');
   
   // New state for signature and stamp
   const [signatureName, setSignatureName] = useState('Authorized Signature');
@@ -123,28 +123,7 @@ const InvoiceTemplate = () => {
   const updateItemField = (index:any, column:any, value:any) => {
     const newItems = [...items];
     newItems[index][column.toLowerCase()] = value;
-    
-    // Calculate total if we have quantity and amount columns
-    if (columns.includes('QUANTITY') && columns.includes('AMOUNT')) {
-      calculateTotal(newItems);
-    }
-    
     setItems(newItems);
-  };
-  
-  // Calculate total based on quantity and amount
-  const calculateTotal = (itemsList:any) => {
-    let sum = 0;
-    
-    if (columns.includes('QUANTITY') && columns.includes('AMOUNT')) {
-      sum = itemsList.reduce((acc:any, item:any) => {
-        const quantity = parseFloat(item['quantity']) || 0;
-        const amount = parseFloat(item['amount']) || 0;
-        return acc + (quantity * amount);
-      }, 0);
-    }
-    
-    setTotal(sum);
   };
 
   // Handle printing with proper formatting
@@ -152,13 +131,6 @@ const InvoiceTemplate = () => {
     const printWindow = window.open('', '_blank');
     const currentDate = new Date();
     const formattedDate = `${currentDate.toLocaleDateString()}, ${String(currentDate.getHours()).padStart(2, '0')}:${String(currentDate.getMinutes()).padStart(2, '0')}`;
-    
-    // Calculate total for print
-    const calculatedTotal = items.reduce((acc, item) => {
-      const quantity = parseFloat(item['quantity']) || 0;
-      const amount = parseFloat(item['amount']) || 0;
-      return acc + (quantity * amount);
-    }, 0);
     
     printWindow && printWindow.document.write(`
       <!DOCTYPE html>
@@ -347,7 +319,7 @@ const InvoiceTemplate = () => {
           
           ${columns.includes('QUANTITY') && columns.includes('AMOUNT') ? `
             <div class="total-section">
-              TOTAL: ₹${calculatedTotal.toFixed(2)}
+              TOTAL: ₹${total}
             </div>
           ` : ''}
           
@@ -622,14 +594,33 @@ const InvoiceTemplate = () => {
               </tbody>
             </Table>
             
-            {/* Total row - will display if we have amount and quantity columns */}
+            {/* Total row with manual input field */}
             {columns.includes('QUANTITY') && columns.includes('AMOUNT') && (
               <Row className="justify-content-end mt-3 mb-4">
                 <Col md={4} className="text-end">
-                  <strong>TOTAL: ₹{total.toFixed(2)}</strong>
+                  <div className="d-flex align-items-center justify-content-end">
+                    <strong className="me-2">TOTAL: ₹</strong>
+                    <Form.Control 
+                      type="text" 
+                      value={total}
+                      onChange={(e) => setTotal(e.target.value)}
+                      className="w-50 text-end"
+                    />
+                  </div>
                 </Col>
               </Row>
             )}
+            
+            {/* Notes field */}
+            <Form.Group className="mt-4">
+              <Form.Label>NOTES:</Form.Label>
+              <Form.Control 
+                as="textarea" 
+                rows={2} 
+                value={notes} 
+                onChange={(e) => setNotes(e.target.value)} 
+              />
+            </Form.Group>
             
             {/* Signature and Stamp section */}
             <Row className="mt-5 mb-4">
@@ -658,19 +649,6 @@ const InvoiceTemplate = () => {
                 </div>
               </Col>
             </Row>
-            
-            {notes && (
-              <div className="mt-4">
-                <h6>NOTES:</h6>
-                <Form.Control 
-                  as="textarea" 
-                  rows={2} 
-                  value={notes} 
-                  onChange={(e) => setNotes(e.target.value)} 
-                  className="border-0" 
-                />
-              </div>
-            )}
             
             <div className="d-flex justify-content-between mt-4 text-muted small">
               <div>BED LINENS</div>
